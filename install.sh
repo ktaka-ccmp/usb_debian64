@@ -1,5 +1,8 @@
 #!/bin/bash
 
+TOP_DIR=${PWD}
+IMG_DIR=${TOP_DIR}/Build/image/
+
 removable(){
 if  (readlink -f /sys/block/${1}/device|egrep -q usb) ; then
 	dev=/dev/${1}
@@ -37,9 +40,9 @@ partprobe
 mkfs.ext4 -F -L usbdebian ${dev}1
 make update
 
-grub-mkimage -o ./image/boot/grub/core.img  ext2 part_msdos biosdisk -O i386-pc  -p ./image/boot/
-grub-mkdevicemap -v -m  ./image/boot/grub/device.map
-grub-install --boot-directory=./image/boot/ ${dev}
+grub-mkimage -o ${IMG_DIR}/boot/grub/core.img  ext2 part_msdos biosdisk -O i386-pc  -p ./image/boot/
+grub-mkdevicemap -v -m  ${IMG_DIR}/boot/grub/device.map
+grub-install --boot-directory=${IMG_DIR}/boot/ ${dev}
 
 sfdisk -A $dev
 
