@@ -35,14 +35,11 @@ EOF
 partprobe
 
 mkfs.ext4 -F -L usbdebian ${dev}1
-
-#grub-mkimage -o ./image/boot/grub/core.img  ext2 part_msdos biosdisk -O i386-pc
 make update
 
-mount -L usbdebian ./mnt
-grub-install --boot-directory=./mnt/boot/ ${dev}
-umount ./mnt
+grub-mkimage -o ./image/boot/grub/core.img  ext2 part_msdos biosdisk -O i386-pc  -p ./image/boot/
+grub-mkdevicemap -v -m  ./image/boot/grub/device.map
+grub-install --boot-directory=./image/boot/ ${dev}
 
-sfdisk -A $dev 1
-
+sfdisk -A $dev
 
