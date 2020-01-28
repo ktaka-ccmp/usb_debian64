@@ -60,7 +60,7 @@ mount -L ESP ${TOP_DIR}/mnt/boot/esp
                 sync ;\
         fi
 
-grub-install --boot-directory=./mnt/boot/ ${dev}
+#grub-install --efi-directory=./mnt/boot/esp --boot-directory=./mnt/boot/ ${dev}
 grub-install --target=x86_64-efi --efi-directory=./mnt/boot/esp --bootloader-id=linux --recheck --boot-directory=./mnt/boot/ ${dev}
 
 umount ${TOP_DIR}/mnt/boot/esp
