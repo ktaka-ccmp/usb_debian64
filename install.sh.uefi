@@ -28,7 +28,8 @@ if [ "$ans" != "y" ]; then
 	exit 1
 fi
 
-sgdisk -z $dev
+sgdisk -Z $dev
+sgdisk -Z $dev
 sgdisk -n 2::+512M  $dev
 sgdisk -t 2:ef00 $dev
 sgdisk -n 1:: $dev
@@ -36,8 +37,12 @@ sgdisk -c 1:Linux -c 2:ESP $dev
 
 partprobe
 
+sleep 5
+
 mkfs.fat -F32 -n ESP ${dev}2 
 mkfs.ext4 -F -L usbdebian ${dev}1
+
+sleep 5
 
 TOP_DIR=${PWD}
 IMG_DIR=${TOP_DIR}/Build/image/

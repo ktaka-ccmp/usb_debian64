@@ -71,6 +71,7 @@ prep:
         flex bison \
         debian-archive-keyring debian-keyring \
         libelf-dev \
+	gdisk parted dosfstools \
 
 
 .PHONY: update
