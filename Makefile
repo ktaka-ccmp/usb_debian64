@@ -4,7 +4,7 @@ IMG_DIR=${TOP_DIR}/Build/image/
 SRC_DIR=${TOP_DIR}/Build/src/
 FILE_DIR=${TOP_DIR}/files/
 
-KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.3.8.tar.xz
+KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.3.14.tar.xz
 KERNEL_FILE=$(notdir ${KERNEL_URI})
 KERNEL=$(KERNEL_FILE:.tar.xz=)
 KVER=$(subst linux-,,${KERNEL})
@@ -37,15 +37,41 @@ default:
 .PHONY: default
 
 all: 
+	make prep
 	make initrd
 	make rootfs
 	make kernel
+
 
 rootfs: rootfs.tgz
 initrd: initrd.img
 
 .PHONY: all kernel  
 .PHONY: install install-kernel install-rootfs 
+
+.PHONY: prep
+
+prep:
+	aptitude install -y debootstrap \
+	cdebootstrap \
+        libncurses5-dev \
+        wget \
+        xz-utils \
+        bc gcc git bzip2 g++ \
+        libtool \
+        pkg-config \
+        zlib1g-dev \
+        libglib2.0-dev \
+        autoconf \
+        build-essential \
+        socat lsof time \
+        bridge-utils \
+        libattr1-dev \
+        libcap-dev \
+        flex bison \
+        debian-archive-keyring debian-keyring \
+        libelf-dev \
+
 
 .PHONY: update
 update:
