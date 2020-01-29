@@ -72,6 +72,7 @@ prep:
         debian-archive-keyring debian-keyring \
         libelf-dev \
 	gdisk parted dosfstools \
+	grub-efi \
 
 
 .PHONY: update

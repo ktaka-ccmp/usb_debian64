@@ -44,13 +44,15 @@ mkfs.ext4 -F -L usbdebian ${dev}1
 
 sleep 5
 
+apt-get install grub-efi -y
+
 TOP_DIR=${PWD}
 IMG_DIR=${TOP_DIR}/Build/image/
 mkdir -p ${TOP_DIR}/mnt
 
 mount -L usbdebian ${TOP_DIR}/mnt
-mkdir -p ${TOP_DIR}/mnt/boot/esp
-mount -L ESP ${TOP_DIR}/mnt/boot/esp
+mkdir -p ${TOP_DIR}/mnt/boot/efi
+mount -L ESP ${TOP_DIR}/mnt/boot/efi
 
         if mountpoint ${TOP_DIR}/mnt > /dev/null  ; then \
                 CONF=$(shell /bin/readlink ${TOP_DIR}/mnt/config.tgz);\
@@ -60,12 +62,16 @@ mount -L ESP ${TOP_DIR}/mnt/boot/esp
                 sync ;\
         fi
 
-#grub-install --efi-directory=./mnt/boot/esp --boot-directory=./mnt/boot/ ${dev}
-grub-install --target=x86_64-efi --efi-directory=./mnt/boot/esp --bootloader-id=linux --recheck --boot-directory=./mnt/boot/ ${dev}
+grub-install --target=x86_64-efi --efi-directory=./mnt/boot/efi --bootloader-id=debian --recheck --boot-directory=./mnt/boot/ 
 
-umount ${TOP_DIR}/mnt/boot/esp
+mkdir -p ${TOP_DIR}/mnt/boot/efi/EFI/boot
+cp ${TOP_DIR}/mnt/boot/efi/EFI/{debian/grubx64,boot/bootx64}.efi 
+cat << \EOF > ${TOP_DIR}/mnt/boot/efi/EFI/debian/grub.cfg
+search.fs_label usbdebian root
+set prefix=($root)'/boot/grub'
+configfile $prefix/grub.cfg
+EOF
+
+umount ${TOP_DIR}/mnt/boot/efi
 umount ${TOP_DIR}/mnt
-
-
-#sfdisk -A $dev
 
