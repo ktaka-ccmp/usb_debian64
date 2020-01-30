@@ -33,7 +33,10 @@ sgdisk -Z $dev
 sgdisk -n 2::+512M  $dev
 sgdisk -t 2:ef00 $dev
 sgdisk -n 1:: $dev
-sgdisk -c 1:Linux -c 2:ESP $dev 
+sgdisk -a 1 -n 3:34:2047 $dev
+sgdisk -t 3:ef02 $dev
+sgdisk -c 1:Linux -c 2:ESP -c 3:BIOS $dev 
+sgdisk -p $dev
 
 partprobe
 
@@ -62,6 +65,7 @@ mount -L ESP ${TOP_DIR}/mnt/boot/efi
                 sync ;\
         fi
 
+grub-install --target=i386-pc --boot-directory=./mnt/boot/ $dev
 grub-install --target=x86_64-efi --efi-directory=./mnt/boot/efi --bootloader-id=debian --recheck --boot-directory=./mnt/boot/ 
 
 mkdir -p ${TOP_DIR}/mnt/boot/efi/EFI/boot
