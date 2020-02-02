@@ -1,0 +1,81 @@
+#!/bin/bash
+
+removable(){
+if  (readlink -f /sys/block/${1}/device|egrep -q usb) ; then
+	dev=/dev/${1}
+else
+	echo "${1} is not a USB device !"
+	exit 1
+fi
+}
+
+case "$1" in
+        sda|sdb|sdc)
+        removable $1
+        ;;
+
+        *)
+        echo "Usage: $0 [sda,sdb,sdc]"
+        exit 1
+        ;;
+
+esac
+
+echo  "About to initialize  $dev .. Are you sure ? [y/N]"
+read ans
+if [ "$ans" != "y" ]; then
+	echo Aborting...
+	exit 1
+fi
+
+sgdisk -Z $dev
+sgdisk -Z $dev
+sgdisk -n 2::+512M  $dev
+sgdisk -t 2:ef00 $dev
+sgdisk -n 1:: $dev
+sgdisk -a 1 -n 3:34:2047 $dev
+sgdisk -t 3:ef02 $dev
+sgdisk -c 1:Linux -c 2:ESP -c 3:BIOS $dev 
+sgdisk -p $dev
+
+partprobe
+
+sleep 5
+
+mkfs.fat -F32 -n ESP ${dev}2 
+mkfs.ext4 -F -L usbdebian ${dev}1
+
+sleep 5
+
+apt-get install grub-efi -y
+
+TOP_DIR=${PWD}
+IMG_DIR=${TOP_DIR}/Build/image/
+mkdir -p ${TOP_DIR}/mnt
+
+mount -L usbdebian ${TOP_DIR}/mnt
+mkdir -p ${TOP_DIR}/mnt/boot/efi
+mount -L ESP ${TOP_DIR}/mnt/boot/efi
+
+        if mountpoint ${TOP_DIR}/mnt > /dev/null  ; then \
+                CONF=$(shell /bin/readlink ${TOP_DIR}/mnt/config.tgz);\
+                rsync  -arv ${IMG_DIR}/ ${TOP_DIR}/mnt/ ; \
+                if [ "$CONF" != "" ]; then (cd ${TOP_DIR}/mnt; ln -sf $CONF config.tgz ) ; fi ;\
+                ls -la ${TOP_DIR}/mnt ;\
+                sync ;\
+        fi
+
+grub-install --target=i386-pc --boot-directory=./mnt/boot/ $dev
+grub-install --target=x86_64-efi --efi-directory=./mnt/boot/efi --bootloader-id=debian --recheck --boot-directory=./mnt/boot/ 
+
+mkdir -p ${TOP_DIR}/mnt/boot/efi/EFI/boot
+cp ${TOP_DIR}/mnt/boot/efi/EFI/{debian/grubx64,boot/bootx64}.efi 
+cat << \EOF > ${TOP_DIR}/mnt/boot/efi/EFI/debian/grub.cfg
+search.fs_label usbdebian root
+set prefix=($root)'/boot/grub'
+configfile $prefix/grub.cfg
+EOF
+
+umount ${TOP_DIR}/mnt/boot/efi
+umount ${TOP_DIR}/mnt
+

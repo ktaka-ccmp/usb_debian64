@@ -71,6 +71,8 @@ prep:
         flex bison \
         debian-archive-keyring debian-keyring \
         libelf-dev \
+	gdisk parted dosfstools \
+	grub-efi \
 
 
 .PHONY: update
@@ -134,6 +136,7 @@ ${SRC_DIR}/rootfs_${DEBIAN}:
 	sudo \
 	${DEBIAN} $@/ http://deb.debian.org/debian ; \
 	echo "root:usb" | chpasswd --root $@/ ; \
+	rm $@/etc/localtime ; cp $@/usr/share/zoneinfo/Japan $@/etc/localtime ; \
 	apt-get -o RootDir=$@/ clean ;\
 	fi
 
