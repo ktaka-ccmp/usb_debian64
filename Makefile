@@ -4,7 +4,8 @@ IMG_DIR=${TOP_DIR}/Build/image/
 SRC_DIR=${TOP_DIR}/Build/src/
 FILE_DIR=${TOP_DIR}/files/
 
-KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.3.14.tar.xz
+#KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.4.16.tar.xz
+KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.5.1.tar.xz
 KERNEL_FILE=$(notdir ${KERNEL_URI})
 KERNEL=$(KERNEL_FILE:.tar.xz=)
 KVER=$(subst linux-,,${KERNEL})
