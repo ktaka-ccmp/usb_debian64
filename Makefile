@@ -139,6 +139,8 @@ ${SRC_DIR}/rootfs_${DEBIAN}:
 	${DEBIAN} $@/ http://deb.debian.org/debian ; \
 	echo "root:usb" | chpasswd --root $@/ ; \
 	rm $@/etc/localtime ; cp $@/usr/share/zoneinfo/Japan $@/etc/localtime ; \
+	[[ -f /sbin/start-stop-daemon.REAL ]] && mv $@/sbin/start-stop-daemon.REAL $@/sbin/start-stop-daemon ; \
+	[[ -f /usr/sbin/start-stop-daemon.REAL ]] && mv $@/usr/sbin/start-stop-daemon.REAL $@/usr/sbin/start-stop-daemon ; \
 	apt-get -o RootDir=$@/ clean ;\
 	fi
 
