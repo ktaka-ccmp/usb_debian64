@@ -53,6 +53,7 @@ initrd: initrd.img
 .PHONY: prep
 
 prep:
+	aptitude update -y
 	aptitude install -y debootstrap \
 	cdebootstrap \
         libncurses5-dev \
@@ -73,7 +74,7 @@ prep:
         debian-archive-keyring debian-keyring \
         libelf-dev \
 	gdisk parted dosfstools \
-	grub-efi \
+	grub-efi-amd64 grub-pc-bin \
 
 
 .PHONY: update
