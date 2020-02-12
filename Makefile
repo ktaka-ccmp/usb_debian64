@@ -122,8 +122,8 @@ ${SRC_DIR}/${BUSYBOX}/_install: ${SRC_DIR}
 
 .PHONY: rootfs.tgz
 rootfs.tgz: ${SRC_DIR}/rootfs_${DEBIAN} ${IMG_DIR}
-	[[ -f $</sbin/start-stop-daemon.REAL ]] && mv $</sbin/start-stop-daemon.REAL $</sbin/start-stop-daemon 
-	[[ -f $</usr/sbin/start-stop-daemon.REAL ]] && mv $</usr/sbin/start-stop-daemon.REAL $</usr/sbin/start-stop-daemon 
+	if [ -f $</sbin/start-stop-daemon.REAL ]; then mv $</sbin/start-stop-daemon.REAL $</sbin/start-stop-daemon ; fi
+	if [ -f $</usr/sbin/start-stop-daemon.REAL ]; then mv $</usr/sbin/start-stop-daemon.REAL $</usr/sbin/start-stop-daemon ; fi
 	(cd $< ; tar cf - .)|gzip > ${IMG_DIR}/rootfs.tgz.0
 	(cd $< ; tar cf - etc )|gzip > ${IMG_DIR}/config.tgz.0
 
