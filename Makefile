@@ -139,7 +139,7 @@ ${SRC_DIR}/rootfs_${DEBIAN}:
 	sysvinit-core,sysvinit-utils,\
 	sudo \
 	${DEBIAN} $@/ http://deb.debian.org/debian ; \
-	echo "root:usb" | chpasswd --root $@/ ; \
+	chroot $@/ bash -c 'echo "root:usb" | chpasswd' ;\
 	rm $@/etc/localtime ; cp $@/usr/share/zoneinfo/Japan $@/etc/localtime ; \
 	apt-get -o RootDir=$@/ clean ;\
 	fi
