@@ -38,7 +38,7 @@ sgdisk -t 3:ef02 $dev
 sgdisk -c 1:Linux -c 2:ESP -c 3:BIOS $dev 
 sgdisk -p $dev
 
-partprobe
+partprobe $dev
 
 sleep 5
 
