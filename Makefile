@@ -1,6 +1,6 @@
 
 TOP_DIR=${PWD}
-IMG_DIR=${TOP_DIR}/Build/image/
+IMG_DIR=${TOP_DIR}/Build/image_mac/
 SRC_DIR=${TOP_DIR}/Build/src/
 FILE_DIR=${TOP_DIR}/files/
 

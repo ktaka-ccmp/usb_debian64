@@ -50,7 +50,7 @@ sleep 5
 apt-get install grub-efi -y
 
 TOP_DIR=${PWD}
-IMG_DIR=${TOP_DIR}/Build/image/
+IMG_DIR=${TOP_DIR}/Build/image_mac/
 mkdir -p ${TOP_DIR}/mnt
 
 mount -L usbdebian ${TOP_DIR}/mnt
