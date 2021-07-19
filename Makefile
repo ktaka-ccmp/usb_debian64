@@ -6,15 +6,17 @@ FILE_DIR=${TOP_DIR}/files/
 
 #KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.4.16.tar.xz
 #KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.6.3.tar.xz
-KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.9.9.tar.xz
+#KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.9.9.tar.xz
+KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.12.3.tar.xz
 KERNEL_FILE=$(notdir ${KERNEL_URI})
 KERNEL=$(KERNEL_FILE:.tar.xz=)
 KVER=$(subst linux-,,${KERNEL})
-KVER_MINOR=-64usb01
+KVER_MINOR=-64usb01-pxe-compat
 
 DEBIAN=buster
 
-BUSYBOX_URI=http://busybox.net/downloads/busybox-1.31.1.tar.bz2
+#BUSYBOX_URI=http://busybox.net/downloads/busybox-1.31.1.tar.bz2
+BUSYBOX_URI=http://busybox.net/downloads/busybox-1.33.1.tar.bz2
 BUSYBOX_FILE=$(notdir ${BUSYBOX_URI})
 BUSYBOX=$(BUSYBOX_FILE:.tar.bz2=)
  
