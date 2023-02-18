@@ -69,6 +69,7 @@ save_image(){
 		exit_umount
 	fi
 
+	mkdir -p /mnt/bind
 	mount -o bind / /mnt/bind
 
 	if [ -e /mnt/root/$backup ]; then
