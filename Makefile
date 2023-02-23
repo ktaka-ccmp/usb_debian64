@@ -31,9 +31,11 @@ default:
 	@echo -e "\t kernel		: Compile kernel"
 	@echo -e "\t initrd		: Create initrd image"
 	@echo -e "\t rootfs		: Create rootfs archive"
+	@echo -e "\t copyfiles		: sync files/image to Build/image"
 	@echo -e "\t "
 	@echo -e " Other Targets "
 	@echo -e "\t update:"
+	@echo -e "\t update-dryrun:"
 	@echo -e "\t	 		Sync ./image to ./mnt"
 	@echo -e "\t 			(This assumes usb partition is labeled with \"usbdebian\".)"
 
@@ -42,8 +44,8 @@ default:
 
 all: 
 	make prep
-	make initrd
 	make rootfs
+	make initrd
 	make kernel
 
 
@@ -86,10 +88,23 @@ update:
 	mount -L usbdebian ${TOP_DIR}/mnt
 	if mountpoint ${TOP_DIR}/mnt > /dev/null  ; then \
 		CONF=$(shell /bin/readlink ${TOP_DIR}/mnt/config.tgz);\
-		rsync  -arv ${IMG_DIR}/ ${TOP_DIR}/mnt/ ; \
+#		rsync  -arv ${IMG_DIR}/ ${TOP_DIR}/mnt/ ; \
+#		rsync  -arvn --delete --exclude=custom --exclude=boot/grub --exclude=boot/efi --exclude=lost+found ${IMG_DIR}/ ${TOP_DIR}/mnt/ ; \
+		rsync  -rptgoDrv --exclude=custom --exclude=boot --exclude=lost+found ${IMG_DIR}/ ${TOP_DIR}/mnt/ ; \
+		rsync  -arv --exclude=grub --exclude=efi --exclude=lost+found ${IMG_DIR}/boot/ ${TOP_DIR}/mnt/boot/ ; \
 		if [ "$$CONF" != "" ]; then (cd ${TOP_DIR}/mnt; ln -sf $$CONF config.tgz ) ; fi ;\
 		ls -la ${TOP_DIR}/mnt ;\
 		sync ;\
+	fi
+	umount ${TOP_DIR}/mnt
+
+.PHONY: update-dryrun
+update-dryrun:
+	mkdir -p ${TOP_DIR}/mnt
+	mount -L usbdebian ${TOP_DIR}/mnt
+	if mountpoint ${TOP_DIR}/mnt > /dev/null  ; then \
+		rsync  -rptgoDrvn --exclude=custom --exclude=boot --exclude=lost+found ${IMG_DIR}/ ${TOP_DIR}/mnt/ ; \
+		rsync  -arvn --exclude=grub --exclude=efi --exclude=lost+found ${IMG_DIR}/boot/ ${TOP_DIR}/mnt/boot/ ; \
 	fi
 	umount ${TOP_DIR}/mnt
 
@@ -97,12 +112,13 @@ update:
 ${SRC_DIR}:
 	mkdir -p $@
 
-.PHONY: ${IMG_DIR}
-${IMG_DIR}:
-	if [ ! -d $@ ] ; then mkdir -p $@ && rsync -av ${FILE_DIR}/image/ $@  ; fi
+.PHONY: copyfiles
+copyfiles:
+	mkdir -p ${IMG_DIR}
+	rsync -av ${FILE_DIR}/image/ ${IMG_DIR}
 
 .PHONY: initrd.img
-initrd.img: ${SRC_DIR}/initrd-usb-cpio ${IMG_DIR}
+initrd.img: ${SRC_DIR}/initrd-usb-cpio copyfiles
 	cp ${FILE_DIR}/init $</
 	(cd $< ;find . | cpio -o -H newc | gzip -9 -n > ${IMG_DIR}/boot/initrd.img)
 
@@ -124,7 +140,7 @@ ${SRC_DIR}/${BUSYBOX}/_install: ${SRC_DIR}
 	egrep  "CONF|^$$" ${SRC_DIR}/${BUSYBOX}/.config > ${FILE_DIR}/dot.config.busybox 
 
 .PHONY: rootfs.tgz
-rootfs.tgz: ${SRC_DIR}/rootfs_${DEBIAN} ${IMG_DIR}
+rootfs.tgz: ${SRC_DIR}/rootfs_${DEBIAN} copyfiles
 	if [ -f $</sbin/start-stop-daemon.REAL ]; then mv $</sbin/start-stop-daemon.REAL $</sbin/start-stop-daemon ; fi
 	if [ -f $</usr/sbin/start-stop-daemon.REAL ]; then mv $</usr/sbin/start-stop-daemon.REAL $</usr/sbin/start-stop-daemon ; fi
 	(cd $< ; tar cf - .)|gzip > ${IMG_DIR}/rootfs.tgz.0
@@ -132,22 +148,20 @@ rootfs.tgz: ${SRC_DIR}/rootfs_${DEBIAN} ${IMG_DIR}
 
 .PHONY: ${SRC_DIR}/rootfs_${DEBIAN}
 ${SRC_DIR}/rootfs_${DEBIAN}:
-	if [ ! -d $@ ]; then \
-	mkdir -p $@ ; \
-	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,\
+	mkdir -p $@
+	-cdebootstrap --include=openssh-server,openssh-client,rsync,pciutils,\
 	tcpdump,strace,ca-certificates,telnet,curl,ncurses-term,\
 	tree,psmisc,\
 	sudo,aptitude,ca-certificates,apt-transport-https,\
 	less,screen,ethtool,sysstat,tzdata,libpam0g,\
 	sysvinit-core,sysvinit-utils,\
 	sudo \
-	${DEBIAN} $@/ http://deb.debian.org/debian ; \
-	chroot $@/ bash -c 'echo "root:usb" | chpasswd' ;\
-	rm $@/etc/localtime ; cp $@/usr/share/zoneinfo/Japan $@/etc/localtime ; \
-	apt-get -o RootDir=$@/ clean ;\
-	fi
+	${DEBIAN} $@/ http://deb.debian.org/debian
+	chroot $@/ bash -c 'echo "root:usb" | chpasswd'
+	rm $@/etc/localtime ; cp $@/usr/share/zoneinfo/Japan $@/etc/localtime
+	apt-get -o RootDir=$@/ clean
 
-kernel: ${SRC_DIR}/${KERNEL}/.config ${IMG_DIR}
+kernel: ${SRC_DIR}/${KERNEL}/.config copyfiles
 	ARCH=x86_64 nice -n 10 make -C ${SRC_DIR}/${KERNEL} -j20
 	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} modules_install INSTALL_MOD_PATH=${SRC_DIR} ; \
 	LD_LIBRARY_PATH=${SRC_DIR} depmod -a -b ${SRC_DIR} ${KVER}${KVER_MINOR}
