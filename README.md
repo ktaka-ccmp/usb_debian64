@@ -59,8 +59,8 @@ If the target USB is recognized as `/dev/sda`, type the following to make the bo
 ```
 ./install.sh sda
 ```
-
-**Please pay special caution, so as not to wipe the content of wrong target USB or SSD!!**
+> [!CAUTION]
+> **Please pay special caution, so as not to wipe the content of wrong target USB or SSD!!**
 
 ## Boot the system
 
