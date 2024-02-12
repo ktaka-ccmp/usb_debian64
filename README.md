@@ -64,7 +64,7 @@ If the target USB is recognized as `/dev/sda`, type the following to make the bo
 
 ## Boot the system
 
-Insert the newly created USB to an arbitarary x64 PC or servers and boot it.
+Insert the newly created USB to an arbitarary x64 PC or servers and boot the system from the USB device.
 
 ### Root Password
 
