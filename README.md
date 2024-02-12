@@ -62,7 +62,7 @@ If the target USB is recognized as `/dev/sda`, type the following to make the bo
 
 **Please pay special caution, so as not to wipe the content of wrong target USB or SSD!!**
 
-## Boot system
+## Boot the system
 
 Insert the newly created USB to an arbitarary x64 PC or servers and boot it.
 
