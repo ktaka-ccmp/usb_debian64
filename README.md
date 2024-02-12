@@ -59,12 +59,12 @@ If the target USB is recognized as `/dev/sda`, type the following to make the bo
 ```
 ./install.sh sda
 ```
+> [!CAUTION]
+> **Pay special attention so as not to wipe the content of wrong target USB or SSD!!**
 
-**Please pay special caution, so as not to wipe the content of wrong target USB or SSD!!**
+## Boot the system
 
-## Boot system
-
-Insert the newly created USB to an arbitarary x64 PC or servers and boot it.
+Insert the newly created USB to an arbitarary x64 PC or servers and boot the system from the USB device.
 
 ### Root Password
 
