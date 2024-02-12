@@ -4,19 +4,16 @@ IMG_DIR=${TOP_DIR}/Build/image/
 SRC_DIR=${TOP_DIR}/Build/src/
 FILE_DIR=${TOP_DIR}/files/
 
-#KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.4.16.tar.xz
-#KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.6.3.tar.xz
-#KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.9.9.tar.xz
-KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v5.x/linux-5.12.13.tar.xz
+KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v6.x/linux-6.7.4.tar.xz
 KERNEL_FILE=$(notdir ${KERNEL_URI})
 KERNEL=$(KERNEL_FILE:.tar.xz=)
 KVER=$(subst linux-,,${KERNEL})
 KVER_MINOR=-64usb01-pxe-compat
 
-DEBIAN=buster
+DEBIAN=bookworm
 
 #BUSYBOX_URI=http://busybox.net/downloads/busybox-1.31.1.tar.bz2
-BUSYBOX_URI=http://busybox.net/downloads/busybox-1.33.1.tar.bz2
+BUSYBOX_URI=http://busybox.net/downloads/busybox-1.36.1.tar.bz2
 BUSYBOX_FILE=$(notdir ${BUSYBOX_URI})
 BUSYBOX=$(BUSYBOX_FILE:.tar.bz2=)
  
@@ -24,20 +21,20 @@ KERN_DIR=${SRC_DIR}/linux-${KVER}
 
 default: 
 	@sleep 0.3
-	@echo -e "Usage: make target "
-	@echo -e " Available Targets "
-	@echo -e "\t all		: Make all files"
-	@echo -e "\t "
-	@echo -e "\t kernel		: Compile kernel"
-	@echo -e "\t initrd		: Create initrd image"
-	@echo -e "\t rootfs		: Create rootfs archive"
-	@echo -e "\t copyfiles		: sync files/image to Build/image"
-	@echo -e "\t "
-	@echo -e " Other Targets "
-	@echo -e "\t update:"
-	@echo -e "\t update-dryrun:"
-	@echo -e "\t	 		Sync ./image to ./mnt"
-	@echo -e "\t 			(This assumes usb partition is labeled with \"usbdebian\".)"
+	@echo  "Usage: make target "
+	@echo  " Available Targets "
+	@echo  "\t all		: Make all files"
+	@echo  "\t "
+	@echo  "\t kernel		: Compile kernel"
+	@echo  "\t initrd		: Create initrd image"
+	@echo  "\t rootfs		: Create rootfs archive"
+	@echo  "\t copyfiles		: sync files/image to Build/image"
+	@echo  "\t "
+	@echo  " Other Targets "
+	@echo  "\t update:"
+	@echo  "\t update-dryrun:"
+	@echo  "\t	 		Sync ./image to ./mnt"
+	@echo  "\t 			(This assumes usb partition is labeled with \"usbdebian\".)"
 
 
 .PHONY: default
@@ -148,13 +145,17 @@ rootfs.tgz: ${SRC_DIR}/rootfs_${DEBIAN} copyfiles
 
 .PHONY: ${SRC_DIR}/rootfs_${DEBIAN}
 ${SRC_DIR}/rootfs_${DEBIAN}:
+	if [ -d $@/usr ]; then rm -rf $@/usr ; fi
 	mkdir -p $@
-	-cdebootstrap --include=openssh-server,openssh-client,rsync,pciutils,\
+	cdebootstrap --include=openssh-server,openssh-client,rsync,pciutils,\
 	tcpdump,strace,ca-certificates,telnet,curl,ncurses-term,\
 	tree,psmisc,\
 	sudo,aptitude,ca-certificates,apt-transport-https,\
 	less,screen,ethtool,sysstat,tzdata,libpam0g,\
 	sysvinit-core,sysvinit-utils,\
+	efibootmgr,sbsigntool,\
+	shim-signed,shim-unsigned,shim-helpers-amd64-signed,\
+	grub-efi-amd64-bin,grub-efi-amd64-signed,\
 	sudo \
 	${DEBIAN} $@/ http://deb.debian.org/debian
 	chroot $@/ bash -c 'echo "root:usb" | chpasswd'
